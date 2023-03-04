@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="This is a blog signup page">
+  <title>blog | signup</title>
+</head>
+<body>
+  <main>
+    <form action="/user/signup" method="post">
+      <div>
+        <label for="username">username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          max="30"
+          min="4"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="email">email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="password">password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          min="8"
+          required
+        />
+      </div>
+
+      <div>
+        <button type="submit">Create account</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="../js/signup/index.js" type="module"></script>
+</body>
+</html>

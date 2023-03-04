@@ -3,7 +3,7 @@ import request from 'supertest';
 import dotenv from 'dotenv';
 
 import app from '../../app.js';
-import DB from '../../model/index.js';
+import DB from '../../models/index.js';
 import {
   USERNAME_REQUIRED,
   LONG_USERNAME,
@@ -161,7 +161,7 @@ describe('Test the signup route', () => {
     expect(body.message).toBe(PASSWORD_REQUIRED);
   });
 
-  it('User wit password less the 8 chars should fail', () => {
+  it('User with password less the 8 chars should fail', () => {
     const res = responses[8];
     const {statusCode, body} = res.value;
 

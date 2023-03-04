@@ -35,7 +35,15 @@ const userSchema = new Schema({
     required: [true, PASSWORD_REQUIRED],
     minlength: [8, SHORT_PASSWORD],
     select: false,
-  }
+  },
+  posts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post'
+  }],
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }]
 });
 
 export default model('User', userSchema);

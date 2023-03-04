@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 
 import app from './app.js';
-import DB from './model/index.js';
+import DB from './models/index.js';
 
 dotenv.config();
 
