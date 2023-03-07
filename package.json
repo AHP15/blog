@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Abdessittir/blog#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "crypto-random-string": "^5.0.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

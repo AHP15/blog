@@ -26,5 +26,13 @@ app.get('/csrf-token', async (req, res) => {
 });
 app.use(userRouter);
 
+// custom error handler
+app.use((err, req, res) => {
+  console.log(err);
+  res.status(err.statusCode).send({
+    success: false,
+    message: err.message ?? "Something went wrong!"
+  });
+});
 
 export default app;

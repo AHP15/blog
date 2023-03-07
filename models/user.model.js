@@ -36,6 +36,13 @@ const userSchema = new Schema({
     minlength: [8, SHORT_PASSWORD],
     select: false,
   },
+  photo: String,
+  createdAt:{
+    type:Date,
+    default:Date.now
+  },
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
   posts: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'
@@ -45,5 +52,34 @@ const userSchema = new Schema({
     ref: 'Comment'
   }]
 });
+
+userSchema.pre("save", function(next){
+    
+  if(!this.isModified("passowrd")){
+      next();
+  }
+
+  this.password = bcrypt.hashSync(this.password, 10);
+});
+
+userSchema.methods.compatePasswords = function(clientPassword){
+  return bcrypt.compareSync(clientPassword, this.password);
+}
+
+// Generate a reset password token
+userSchema.methods.getResetPasswordToken = function(){
+    
+  // Generating token
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  // Hashing and adding resetPasswordToken to userSchema
+  this.resetPasswordToken = crypto.createHash("sha256")
+                                  .update(resetToken)
+                                  .digest("hex");
+  // Expire after 24 hours
+  this.resetPasswordExpire = Date.now() + 86400 * 1000;
+
+  return resetToken;
+
+}
 
 export default model('User', userSchema);

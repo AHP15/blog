@@ -64,6 +64,7 @@ const requests = {
 
 describe('Test the signup route', () => {
   let responses;
+  let userId;
 
   beforeAll(async () => {
     await DB.mongoose.connect(process.env.TEST_CONNECTION_URL, {
@@ -72,12 +73,14 @@ describe('Test the signup route', () => {
     responses = await Promise.allSettled(Object.values(requests));
   });
   afterAll(async () => {
+    await DB.user.findByIdAndDelete(userId);
     await DB.mongoose.disconnect();
   });
 
   it('Create a new user', () => {
     const res = responses[0];
     const {statusCode, body} = res.value;
+    userId = body.user._id;
 
     // Assertions
     expect(statusCode).toBe(201);
