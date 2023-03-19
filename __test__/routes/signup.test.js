@@ -1,9 +1,9 @@
 import {jest} from '@jest/globals';
 import request from 'supertest';
-import dotenv from 'dotenv';
 
-import app from '../../app.js';
 import DB from '../../models/index.js';
+import app from '../../app.js';
+import connection from '../db.setup.js';
 import {
   USERNAME_REQUIRED,
   LONG_USERNAME,
@@ -13,49 +13,47 @@ import {
   SHORT_PASSWORD
 } from '../../constants.js'
 
-dotenv.config();
-
 jest.setTimeout(60000);
 
-const requests = {
-  signup: request(app).post('/user/auth/signup').send({
+const signupRequests = {
+  signup: () => request(app).post('/user/auth/signup').send({
     username: 'test',
     email: 'test@gmail.com',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupUsernameRequired: request(app).post('/user/auth/signup').send({
+  signupUsernameRequired: () =>  request(app).post('/user/auth/signup').send({
     email: 'test@gmail.com',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupUsernameMinLength: request(app).post('/user/auth/signup').send({
+  signupUsernameMinLength: () =>  request(app).post('/user/auth/signup').send({
     username: 'te',
     email: 'test@gmail.com',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupUsernameMaxLength: request(app).post('/user/auth/signup').send({
+  signupUsernameMaxLength: () =>  request(app).post('/user/auth/signup').send({
     username: 'test'.repeat(8),
     email: 'test@gmail.com',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupEmailRequired: request(app).post('/user/auth/signup').send({
+  signupEmailRequired: () =>  request(app).post('/user/auth/signup').send({
     username: 'test',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupDuplicateEmail: request(app).post('/user/auth/signup').send({
+  signupDuplicateEmail: () =>  request(app).post('/user/auth/signup').send({
     username: 'duplicate',
     email: 'duplicate@gmail.com',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupInvalidEmail: request(app).post('/user/auth/signup').send({
+  signupInvalidEmail: () =>  request(app).post('/user/auth/signup').send({
     username: 'test',
     email: 'test test',
     password: 'dkhfslmkqjjsazzdz'
   }),
-  signupPasswordRequired: request(app).post('/user/auth/signup').send({
+  signupPasswordRequired: () =>  request(app).post('/user/auth/signup').send({
     username: 'test',
     email: "test2@gmail.com",
   }),
-  signupPasswordMinLength: request(app).post('/user/auth/signup').send({
+  signupPasswordMinLength: () =>  request(app).post('/user/auth/signup').send({
     username: 'test',
     email: 'test@gmail.com',
     password: 'hfjd'
@@ -63,22 +61,20 @@ const requests = {
 };
 
 describe('Test the signup route', () => {
-  let responses;
+  let signupResponses;
   let userId;
-
   beforeAll(async () => {
-    await DB.mongoose.connect(process.env.TEST_CONNECTION_URL, {
-      dbName: 'blog',
-    });
-    responses = await Promise.allSettled(Object.values(requests));
+    signupResponses = await Promise.allSettled(
+      Object.values(signupRequests).map(req => req())
+    );
   });
+
   afterAll(async () => {
     await DB.user.findByIdAndDelete(userId);
-    await DB.mongoose.disconnect();
   });
 
   it('Create a new user', () => {
-    const res = responses[0];
+    const res = signupResponses[0];
     const {statusCode, body} = res.value;
     userId = body.user._id;
 
@@ -91,7 +87,7 @@ describe('Test the signup route', () => {
 
   // username validation
   it('User without username should fail', () => {
-    const res = responses[1];
+    const res = signupResponses[1];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -101,7 +97,7 @@ describe('Test the signup route', () => {
   });
 
   it('User`s username with less then 4 chars should fail', () => {
-    const res = responses[2];
+    const res = signupResponses[2];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -111,7 +107,7 @@ describe('Test the signup route', () => {
   });
 
   it('User`s username with more then 30 chars should fail', () => {
-    const res = responses[3];
+    const res = signupResponses[3];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -123,7 +119,7 @@ describe('Test the signup route', () => {
 
   // email validation
   it('User without email should fail', () => {
-    const res = responses[4];
+    const res = signupResponses[4];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -133,7 +129,7 @@ describe('Test the signup route', () => {
   });
 
   it('Should fail already emails aleardy exist in database', () => {
-    const res = responses[5];
+    const res = signupResponses[5];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -143,7 +139,7 @@ describe('Test the signup route', () => {
   });
 
   it('Should fail Invalid email', () => {
-    const res = responses[6];
+    const res = signupResponses[6];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -155,7 +151,7 @@ describe('Test the signup route', () => {
 
   // password validation
   it('User without password should fail', () => {
-    const res = responses[7];
+    const res = signupResponses[7];
     const {statusCode, body} = res.value;
 
     // Assertions
@@ -165,7 +161,7 @@ describe('Test the signup route', () => {
   });
 
   it('User with password less the 8 chars should fail', () => {
-    const res = responses[8];
+    const res = signupResponses[8];
     const {statusCode, body} = res.value;
 
     // Assertions

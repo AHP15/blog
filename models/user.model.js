@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import bcrypt from "bcryptjs";
 
 import {
   EMAIL_REG_EXP,
@@ -55,11 +56,10 @@ const userSchema = new Schema({
 
 userSchema.pre("save", function(next){
     
-  if(!this.isModified("passowrd")){
-      next();
+  if(this.isModified("password")){
+    this.password = bcrypt.hashSync(this.password, 10);
   }
-
-  this.password = bcrypt.hashSync(this.password, 10);
+  next();
 });
 
 userSchema.methods.compatePasswords = function(clientPassword){
